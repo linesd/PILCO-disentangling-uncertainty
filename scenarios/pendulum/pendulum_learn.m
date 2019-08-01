@@ -81,7 +81,7 @@ for j = 1:N
   trajectory_costs = nan(M_num, T_num, N_num);
   
   % do Monte Carlo rollouts
-  for mm =1:M_num
+  parfor mm =1:M_num
 
       % draw dimy samples of the weights
       weights = zeros(2*nbf, dimy);

@@ -139,8 +139,8 @@ elseif nargin == 5
     phistar = x_tst * w';
     phistar = [cos(phistar) sin(phistar)];
     
-    out1 = sf2/m*(R \ Rtiphity);;%R \ (R' \ (phi' * y_tr)) * (sf2 / m);
-    out2 = inv(K) * (sn2*sf2/m);
+    out1 = sf2/m*(R \ Rtiphity); %posterior mean
+    out2 = inv(K) * (sn2*sf2/m); % posterior covariance
     out3 = phistar;
 end
 end
