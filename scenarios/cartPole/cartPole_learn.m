@@ -61,7 +61,9 @@ for j = 1:N
     Y_tr = dynmodel.targets;
     [x_len, dimx] = size(X_tr);
     [y_len, dimy] = size(Y_tr);
-
+    Y_te = zeros(x_len, 1); % dummys which are not actually used
+    X_te = rand(y_len, dimx); % dummys which are not actually used
+    
     % hyper parameters
     loghyper = rand(dimx+2,1);
     nbf = 500; % number of basis functions
@@ -70,8 +72,7 @@ for j = 1:N
     opt_params = zeros(dimx+2 + nbf*dimx, dimy);
     for ii = 1:dimy
         fprintf('Learning uncertainty model %i of %i ... \n', ii, dimy);
-        [NMSE, mu, S2, NMLP, loghyper, convergence] = ssgprfixed_ui(X_tr, Y_tr(:, ii),  rand(x_len, dimx),...
-                                                                                                       zeros(y_len, 1), nbf, -1000, loghyper);
+        [NMSE, mu, S2, NMLP, loghyper, convergence] = ssgprfixed_ui(X_tr, Y_tr(:, ii),  X_te, Y_te, nbf, -1000, loghyper);
         opt_params(:,ii) = loghyper;
     end
 
