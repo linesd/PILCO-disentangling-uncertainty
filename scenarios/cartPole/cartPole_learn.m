@@ -51,9 +51,9 @@ for j = 1:N
   end
   
     %% MY STUFF FROM HERE
-    N_mc = 100; % number of trajectory starts
-    M_mc = 100; % number of sets of weights
-    T_mc = H; % number of timesteps in rollout
+    N_num = 100; % number of trajectory starts
+    M_num = 100; % number of sets of weights
+    T_num = H; % number of timesteps in rollout
 
     % get data
     [~, state_len] = size(x);  
