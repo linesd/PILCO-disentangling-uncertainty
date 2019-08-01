@@ -44,9 +44,13 @@ uncertainty = nan(N, 4);
 
 % 3. Controlled learning (N iterations)
 for j = 1:N
+  fprintf("Running episode %i of %i. \n", j, N); tic;
   trainDynModel;   % train (GP) dynamics model
+  fprintf("trainDynModel took %.2f seconds.\n",toc); tic;
   learnPolicy;     % learn policy 
+  fprintf("learnPolicy took %.2f seconds.\n",toc); tic;
   applyController; % apply controller to system
+  fprintf("applyController took %.2f seconds.\n",toc); 
   disp(['controlled trial # ' num2str(j)]);
   if plotting.verbosity > 0;      % visualization of trajectory
     if ~ishandle(1); figure(1); else set(0,'CurrentFigure',1); end; clf(1);
@@ -54,9 +58,10 @@ for j = 1:N
   end 
   
   %% MY STUFF FROM HERE
-  N_mc = 100; % number of trajectory starts
-  M_mc = 100; % number of sets of weights
-  T_mc = H; % number of timesteps in rollout
+  tic;
+  N_num = 100; % number of trajectory starts
+  M_num = 100; % number of sets of weights
+  T_num = H; % number of timesteps in rollout
   
   % get data
   [~, state_len] = size(x);  
@@ -80,11 +85,11 @@ for j = 1:N
   end
 
   % initialise trajectories
-  trajectories = nan(M_mc, T_mc, N_mc, state_len); 
-  trajectory_costs = nan(M_mc, T_mc, N_mc);
+  trajectories = nan(M_num, T_num, N_num, state_len); 
+  trajectory_costs = nan(M_num, T_num, N_num);
   
   % do Monte Carlo rollouts
-  for mm =1:M_mc
+  parfor mm =1:M_num
 
       % draw dimy samples of the weights
       weights = zeros(2*nbf, dimy);
@@ -96,17 +101,17 @@ for j = 1:N
       end
 
       % get N starting states
-      states = zeros(N_mc, state_len); % should be N x 5
-      for ii = 1:N_mc
+      states = zeros(N_num, state_len); % should be N x 5
+      for ii = 1:N_num
           states(ii, dyno)  = mvnrnd(mu0', S0 , 1);
           states(ii, 7:10) = [sin(states(ii, 5)) cos(states(ii, 5)) sin(states(ii, 6)) cos(states(ii, 6))] ;
       end
        
       %do the time rollouts
-      for tt = 1:T_mc
+      for tt = 1:T_num
 
           % calculate costs and actions for the N states
-          for nn = 1:N_mc
+          for nn = 1:N_num
               trajectory_costs(mm, tt, nn) = cost.fcn(cost, states(nn,dyno)',zeros(length(dyno))); % from rollout
               states(nn,end) = policy.fcn(policy,states(nn,poli)',zeros(length(poli)));% append policy
           end
@@ -115,7 +120,7 @@ for j = 1:N
           trajectories(mm, tt, :, :) = states;      
           
           % predict one step from the posterior to get delta states
-          delta_states = zeros(N_mc, dimy);
+          delta_states = zeros(N_num, dimy);
           for ii = 1:dimy
               [~, ~, phistar] = ssgprfixed(opt_params(:,ii), X_tr, Y_tr(:, ii), states(:,[dyni acti]), true);
               delta_states(:, ii) = phistar * weights(:,ii); 
@@ -123,11 +128,10 @@ for j = 1:N
 
           % update states + measurement noise
           states(:, dyno) = states(:, dyno) + delta_states + randn(size(dyno))*chol(plant.noise);
-          states(:, 7:10) = states(:, 7:10) + [sin(states(:, 5)) cos(states(:, 5)) sin(states(:, 6)) cos(states(:, 6))];       
+          states(:, 7:10) = [sin(states(:, 5)) cos(states(:, 5)) sin(states(:, 6)) cos(states(:, 6))];       
       end
       
-      fprintf("Finished %i of %i MC rollouts... \n", mm*tt*N_mc, M_mc*T_mc*N_mc);
-      
+      fprintf("Finished %i of %i MC rollouts... \n", mm*tt*N_num, M_num*T_num*N_num);
   end
   
   %compute the average cost for the episode
@@ -152,4 +156,6 @@ for j = 1:N
   save(name, "uncertainty");
   name = "../../myData/cartDoublePen_plots/data_" + num2str(save_at) +"/fantasy_data_" + num2str(j); 
   save(name, "fantasy");
+  
+  fprintf("MC rollouts took %.2f seconds.\n",toc); 
 end

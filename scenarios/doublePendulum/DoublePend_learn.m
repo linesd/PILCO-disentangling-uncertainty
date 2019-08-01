@@ -39,9 +39,13 @@ uncertainty = nan(N, 4);
 
 % 3. Controlled learning (N iterations)
 for j = 1:N
+  fprintf("Running episode %i of %i. \n", j, N); tic;
   trainDynModel;   % train (GP) dynamics model
+  fprintf("trainDynModel took %.2f seconds.\n",toc); tic;
   learnPolicy;     % learn policy
+  fprintf("learnPolicy took %.2f seconds.\n",toc); tic;
   applyController; % apply controller to system
+  fprintf("applyController took %.2f seconds.\n",toc); 
   disp(['controlled trial # ' num2str(j)]);
   if plotting.verbosity > 0;      % visualization of trajectory
     if ~ishandle(1); figure(1); else set(0,'CurrentFigure',1); end; clf(1);
@@ -49,7 +53,7 @@ for j = 1:N
   end
   
 %% MY STUFF FROM HERE
-
+tic;
 % set the MC roll out values
 N_num = 100; % number of starts
 M_num = 100; % number of sets of N_num weights
@@ -81,7 +85,7 @@ trajectories = nan(M_num, T_num, N_num, state_len);
 trajectory_costs = nan(M_num, T_num, N_num);
 
 % do Monte Carlo rollouts
-for mm =1:M_num
+parfor mm =1:M_num
 
   % draw dimy samples of the weights
   weights = zeros(2*nbf, dimy);
@@ -120,7 +124,7 @@ for mm =1:M_num
 
     % update states
     states(:, dyno) = states(:, dyno) + delta_states + randn(size(dyno))*chol(plant.noise);
-    states(:, 5:8) = states(:, 5:8) + [sin(states(:, 3)) cos(states(:, 3)) sin(states(:, 4)) cos(states(:, 4))] ;
+    states(:, 5:8) = [sin(states(:, 3)) cos(states(:, 3)) sin(states(:, 4)) cos(states(:, 4))] ;
   end
 
   fprintf('Finished %i of %i MC rollouts... \n', mm*tt*N_num, M_num*T_num*N_num);
@@ -150,4 +154,5 @@ save(name, "uncertainty");
 name = "../../myData/doublePend_plots/data_" + num2str(save_at) +"/fantasy_data_" + num2str(j); 
 save(name, "fantasy");
   
+fprintf("MC rollouts took %.2f seconds.\n",toc); 
 end

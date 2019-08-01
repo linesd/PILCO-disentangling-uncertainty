@@ -39,9 +39,13 @@ uncertainty = nan(N, 4);
 
 % 3. Controlled learning (N iterations)
 for j = 1:N
+  fprintf("Running episode %i of %i. \n", j, N); tic;
   trainDynModel;   % train (GP) dynamics model
+  fprintf("trainDynModel took %.2f seconds.\n",toc); tic;
   learnPolicy;     % learn policy
+  fprintf("learnPolicy took %.2f seconds.\n",toc); tic;
   applyController; % apply controller to system
+  fprintf("applyController took %.2f seconds.\n",toc); 
   disp(['controlled trial # ' num2str(j)]);
   if plotting.verbosity > 0;      % visualization of trajectory
     if ~ishandle(1); figure(1); else set(0,'CurrentFigure',1); end; clf(1);
@@ -49,7 +53,7 @@ for j = 1:N
   end
   
  %% MY STUFF FROM HERE
-  
+  tic;
   % set the MC roll out values
   N_num = 100; % number of starts
   M_num = 100; % number of sets of N_num weights
@@ -120,7 +124,7 @@ for j = 1:N
 
         % update states
         states(:, dyno) = states(:, dyno) + delta_states + randn(size(dyno))*chol(plant.noise);
-        states(:, 3:4) = states(:, 3:4) +[sin(states(:, angi)) cos(states(:, angi))];
+        states(:, 3:4) = [sin(states(:, angi)) cos(states(:, angi))];
       end
       
       fprintf('Finished %i of %i MC rollouts... \n', mm*tt*N_num, M_num*T_num*N_num);
@@ -149,4 +153,6 @@ name = "../../myData/pendulum_plots/data_" + num2str(save_at) +"/uncertainty_" +
 save(name, "uncertainty");
 name = "../../myData/pendulum_plots/data_" + num2str(save_at) +"/fantasy_data_" + num2str(j); 
 save(name, "fantasy");
+
+fprintf("MC rollouts took %.2f seconds.\n",toc); 
 end
