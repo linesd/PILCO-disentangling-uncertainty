@@ -15,13 +15,15 @@
 
 %% Code
 
-% the data_# to save at
-save_at = 1;
+
 
 % 1. Initialization
 clear all; close all;
 settings_cdp;                 % load scenario-specific settings
 basename = 'CartDoublePend_'; % filename used for saving data
+
+% the data_# to save at
+save_at = 1;
 
 % 2. Initial J random rollouts
 for jj = 1:J                                        
