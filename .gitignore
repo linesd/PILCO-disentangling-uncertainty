@@ -2,3 +2,5 @@
 plotting_scripts/*
 myData/*
 
+#files
+*.png

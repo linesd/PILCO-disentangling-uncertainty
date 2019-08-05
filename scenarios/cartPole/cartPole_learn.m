@@ -20,7 +20,7 @@ clear all; close all;
 settings_cp;                      % load scenario-specific settings
 basename = 'cartPole_';           % filename used for saving data
 % the data_# to save at
-save_at = 1;
+save_at = 2;
 
 % 2. Initial J random rollouts
 for jj = 1:J
