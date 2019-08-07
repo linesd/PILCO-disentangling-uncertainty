@@ -1,4 +1,4 @@
-%% cartDouble_learn.m
+ %% cartDouble_learn.m
 % *Summary:* Script to learn a controller for the cart-doube-pendulum
 % swingup
 %

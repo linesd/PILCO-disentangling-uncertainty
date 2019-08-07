@@ -39,12 +39,12 @@ save_at = 1;
 % 
 % mu0Sim(odei,:) = mu0; S0Sim(odei,odei) = S0;
 % mu0Sim = mu0Sim(dyno); S0Sim = S0Sim(dyno,dyno);
-load('CartDoublePend_40_H100.mat');
+load('CartDoublePend_55_H100.mat');
 New_N = 80;
 uncertainty = [uncertainty; nan(N, 4)];
 
 % 3. Controlled learning (N iterations)
-for j = N+1:New_N
+for j = N+16:New_N
   fprintf("Running episode %i of %i. \n", j, New_N); tic;
   trainDynModel;   % train (GP) dynamics model
   fprintf("trainDynModel took %.2f seconds.\n",toc); tic;
