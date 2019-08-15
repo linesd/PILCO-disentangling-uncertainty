@@ -147,3 +147,12 @@ plotting.verbosity = 1;            % 0: no plots
 x = []; y = [];                                  
 fantasy.mean = cell(1,N); fantasy.std = cell(1,N);
 realCost = cell(1,N); M = cell(N,1); Sigma = cell(N,1);
+
+
+%10. uncertainty analysis
+do_uncertainty = true;
+uncertainty = nan(N, 3);
+N_num = 100; % number of trajectory starts
+M_num = 100; % number of sets of weights
+T_num = H; % number of timesteps in rollout
+nbf = 500; % number of basis functions

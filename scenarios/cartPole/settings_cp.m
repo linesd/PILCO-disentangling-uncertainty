@@ -135,5 +135,10 @@ fantasy.mean = cell(1,N); fantasy.std = cell(1,N);
 realCost = cell(1,N); M = cell(N,1); Sigma = cell(N,1);
 
 % 10. Disentangling uncertainty
-
+run_uncertainty = true;
+uncertainty = nan(N, 3);
+N_num = 50; % number of trajectory starts
+M_num = 50; % number of sets of weights
+T_num = H; % number of timesteps in rollout
+nbf = 500; % number of basis functions
 
